@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import copy
 import gc
+import datetime
 
 try:
     from hashlib import md5
@@ -358,7 +359,9 @@ class RlWriter(object):
         mywiki = item.wiki
         art = mywiki.getParsedArticle(title=item.title,
                                              revision=item.revision)
-        if not art:
+        art.revision = item.revision 
+     art.timestamp = item.timestamp	
+	if not art:
             return # FIXME
         try:
             ns = item.wiki.normalize_and_get_page(item.title,0).ns
@@ -764,7 +767,10 @@ class RlWriter(object):
         if self.license_mode and self.debug:
             return []
         self.references = []
-        title = self.renderArticleTitle(article.caption)
+        #title = self.renderArticleTitle(article.caption)
+        
+ 	giorno = datetime.datetime.fromtimestamp(int(article.timestamp)).strftime('%d-%m-%Y %H:%M:%S')	
+	title = self.renderArticleTitle(article.caption) 
 
         log.info('rendering: %r' % (article.url or article.caption))
         if self.layout_status:
@@ -772,7 +778,7 @@ class RlWriter(object):
             self.articlecount += 1
         elements = []
         if hasattr(self, 'doc'): # doc is not present if tests are run
-            elements.append(self._getPageTemplate(title))
+            elements.append(self._getPageTemplate(title + ' - ' + giorno))
             # FIXME remove the getPrevious below
             if self.license_mode:
                 if self.numarticles > 1:
